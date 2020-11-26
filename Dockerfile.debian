@@ -1,6 +1,6 @@
 ARG CMDG_VERSION=1.02
 
-FROM debian:latest AS builder
+FROM golang:buster AS builder
 MAINTAINER David Wozniak
 
 ARG CMDG_VERSION
