@@ -1,0 +1,29 @@
+ARG CMDG_VERSION=1.02
+
+FROM debian:latest AS builder
+MAINTAINER David Wozniak
+
+ARG CMDG_VERSION
+ENV CMDG_VERSION=${CMDG_VERSION}
+ENV CMDG_URL https://github.com/ThomasHabets/cmdg/archive/cmdg-${CMDG_VERSION}.zip
+
+# Install prerequisites
+RUN apt-get update && \
+    apt-get -y install \
+        curl \
+        unzip && \
+    rm -rf /var/lib/apt/lists/*
+
+# Download source and unzip it
+RUN curl -o /tmp/cmdg.zip -L "${CMDG_URL}" && \
+    cd /tmp && unzip /tmp/cmdg.zip && \
+    cd "/tmp/cmdg-cmdg-${CMDG_VERSION}" && \
+    go build ./cmd/cmdg
+
+# Copy binary to an empty image
+FROM debian:latest
+
+ARG CMDG_VERSION
+ENV CMDG_VERSION=${CMDG_VERSION}
+
+COPY --from=builder /tmp/cmdg-cmdg-${CMDG_VERSION}/cmdg /usr/local/bin
